@@ -21,16 +21,21 @@ public class Principal {
                 """;
 
         System.out.println(menu);
+        String endereco = "";
 
-        var opcao = scanner.nextLine();
-        String endereco;
+        while (endereco.isEmpty()) {
+            System.out.println(menu);
+            var opcao = scanner.nextLine();
 
-        if (opcao.toLowerCase().contains("carr")) {
-            endereco = URL_BASE + "carros/marcas";
-        } else if (opcao.toLowerCase().contains("mot")) {
-            endereco = URL_BASE + "motos/marcas";
-        } else {
-            endereco = URL_BASE + "caminhoes/marcas";
+            if (opcao.toLowerCase().contains("carr")) {
+                endereco = URL_BASE + "carros/marcas";
+            } else if (opcao.toLowerCase().contains("mot")) {
+                endereco = URL_BASE + "motos/marcas";
+            } else if (opcao.toLowerCase().contains("cam")) {
+                endereco = URL_BASE + "caminhoes/marcas";
+            } else {
+                System.out.println("\n Opção inválida! Por favor, digite apenas Carro, Moto ou Caminhão.\n");
+            }
         }
 
         var json = consumo.obterDados(endereco);

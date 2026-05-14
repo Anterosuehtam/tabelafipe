@@ -54,8 +54,22 @@ public class Principal {
                 .sorted(Comparator.comparing(Dados::codigo))
                 .forEach(System.out::println);
 
-        System.out.println("Informe o código da marca para consulta: ");
-        var codigoMarca = scanner.nextLine();
+        String codigoMarca = "";
+        boolean marcaEncontrada = false;
+
+        while (!marcaEncontrada) {
+            System.out.println("\nInforme o código da marca para consulta: ");
+            codigoMarca = scanner.nextLine();
+
+            String codigoDigitado = codigoMarca;
+
+            marcaEncontrada = marcas.stream()
+                    .anyMatch(marca -> marca.codigo().equals(codigoDigitado));
+
+            if (!marcaEncontrada) {
+                System.out.println("Código inválido! Por favor, digite um código válido da lista acima.");
+            }
+        }
 
         endereco = endereco + "/" + codigoMarca + "/modelos";
         json = consumo.obterDados(endereco);

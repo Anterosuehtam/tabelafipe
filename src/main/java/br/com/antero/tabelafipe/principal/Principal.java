@@ -21,12 +21,17 @@ public class Principal {
 
     public void exibeMenu() {
         var menu = """
-                OPÇÕES
-                - Carro
-                - Moto
-                - Caminhão
+                ===================================
+                🚗 🏍️ 🚛  CONSULTA TABELA FIPE 
+                ===================================
                 
-                Digite uma das opções para consultar: 
+                Escolha o tipo de veículo para buscar:
+                
+                ▶ Carro
+                ▶ Moto
+                ▶ Caminhão
+                
+                👉 Digite a opção desejada: 
                 """;
 
         String endereco = "";
@@ -47,7 +52,6 @@ public class Principal {
         }
 
         var json = consumo.obterDados(endereco);
-        System.out.println(json);
 
         var marcas = conversor.obterLista(json, Dados.class);
         marcas.stream()
@@ -80,7 +84,7 @@ public class Principal {
                 .sorted(Comparator.comparing(Dados::codigo))
                 .forEach(System.out::println);
 
-        System.out.println("\n Digite um trecho do nome do carro a ser buscado: ");
+        System.out.println("\nDigite um trecho do nome do carro a ser buscado: ");
         var nomeVeiculo = scanner.nextLine();
 
         List<Dados> modelosFiltrados = modeloLista.modelos().stream()

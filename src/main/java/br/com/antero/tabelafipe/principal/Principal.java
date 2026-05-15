@@ -88,20 +88,42 @@ public class Principal {
                 .sorted(Comparator.comparing(Dados::codigo))
                 .forEach(System.out::println);
 
-        System.out.println("\nDigite um trecho do nome do carro a ser buscado: ");
-        var nomeVeiculo = scanner.nextLine();
+        List<Dados> modelosFiltrados = new ArrayList<>();
 
-        List<Dados> modelosFiltrados = modeloLista.modelos().stream()
-                .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
-                .collect(Collectors.toList());
+        while (modelosFiltrados.isEmpty()) {
+            System.out.print("\nDigite um trecho do nome do carro a ser buscado: ");
+            var nomeVeiculo = scanner.nextLine();
+
+            modelosFiltrados = modeloLista.modelos().stream()
+                    .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            if (modelosFiltrados.isEmpty()) {
+                System.out.println("Nenhum veículo encontrado com esse trecho! Tente digitar outra coisa.");
+            }
+        }
 
         System.out.println("\n===================================");
         System.out.println("MODELOS FILTRADOS");
         System.out.println("===================================");
         modelosFiltrados.forEach(m -> System.out.printf("Cód: %-5s | Modelo: %s\n", m.codigo(), m.nome()));
 
-        System.out.println("\nDigite o código do modelo para buscar os valores de avaliação: ");
-        var codigoModelo = scanner.nextLine();
+        String codigoModelo = "";
+        boolean modeloEncontrado = false;
+
+        while (!modeloEncontrado) {
+            System.out.print("\nDigite o código do modelo: ");
+            codigoModelo = scanner.nextLine();
+
+            String codigoDigitadoModelo = codigoModelo;
+
+            modeloEncontrado = modeloLista.modelos().stream()
+                    .anyMatch(modelo -> modelo.codigo().equals(codigoDigitadoModelo));
+
+            if (!modeloEncontrado) {
+                System.out.println("Código de modelo inválido! Por favor, digite um código numérico válido da lista acima.");
+            }
+        }
 
         endereco = endereco + "/" + codigoModelo + "/anos";
         json = consumo.obterDados(endereco);

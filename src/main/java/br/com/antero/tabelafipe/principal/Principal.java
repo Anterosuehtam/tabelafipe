@@ -30,14 +30,13 @@ public class Principal {
                 ▶ Carro
                 ▶ Moto
                 ▶ Caminhão
-                
-                👉 Digite a opção desejada: 
                 """;
 
         String endereco = "";
 
         while (endereco.isEmpty()) {
             System.out.println(menu);
+            System.out.println("👉 Digite a opção desejada: ");
             var opcao = scanner.nextLine();
 
             if (opcao.toLowerCase().contains("carr")) {
@@ -52,8 +51,11 @@ public class Principal {
         }
 
         var json = consumo.obterDados(endereco);
-
         var marcas = conversor.obterLista(json, Dados.class);
+
+        System.out.println("\n===================================");
+        System.out.println("MARCAS DISPONÍVEIS");
+        System.out.println("===================================");
         marcas.stream()
                 .sorted(Comparator.comparing(Dados::codigo))
                 .forEach(System.out::println);
@@ -79,7 +81,9 @@ public class Principal {
         json = consumo.obterDados(endereco);
         var modeloLista = conversor.obterDados(json, Modelos.class);
 
-        System.out.println("\nModelos dessa marca: ");
+        System.out.println("\n===================================");
+        System.out.println("MODELOS DESSA MARCA");
+        System.out.println("===================================");
         modeloLista.modelos().stream()
                 .sorted(Comparator.comparing(Dados::codigo))
                 .forEach(System.out::println);
@@ -91,8 +95,10 @@ public class Principal {
                 .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
                 .collect(Collectors.toList());
 
-        System.out.println("\nModelos filtrados: ");
-        modelosFiltrados.forEach(System.out::println);
+        System.out.println("\n===================================");
+        System.out.println("MODELOS FILTRADOS");
+        System.out.println("===================================");
+        modelosFiltrados.forEach(m -> System.out.printf("Cód: %-5s | Modelo: %s\n", m.codigo(), m.nome()));
 
         System.out.println("\nDigite o código do modelo para buscar os valores de avaliação: ");
         var codigoModelo = scanner.nextLine();
@@ -111,7 +117,9 @@ public class Principal {
          veiculos.add(veiculo);
         }
 
-        System.out.println("\nTodos os veículso filtrados com avaliações por ano: ");
+        System.out.println("\n===================================");
+        System.out.println("HISTÓRICO DE MODELOS");
+        System.out.println("===================================");
         veiculos.forEach(v -> {
             String anoFormatado = v.ano() == 32000 ? "Zero KM" : String.valueOf(v.ano());
 
@@ -121,5 +129,6 @@ public class Principal {
                     ", ano=" + anoFormatado +
                     ", tipoCombustivel=" + v.tipoCombustivel() + "]");
         });
+        System.out.println("\n===================================\n");
     }
 }

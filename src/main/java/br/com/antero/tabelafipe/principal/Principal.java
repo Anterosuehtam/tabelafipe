@@ -112,6 +112,14 @@ public class Principal {
         }
 
         System.out.println("\nTodos os veículso filtrados com avaliações por ano: ");
-        veiculos.forEach(System.out::println);
+        veiculos.forEach(v -> {
+            String anoFormatado = v.ano() == 32000 ? "Zero KM" : String.valueOf(v.ano());
+
+            System.out.println("Veiculo[valor=" + v.valor() +
+                    ", marca=" + v.marca() +
+                    ", modelo=" + v.modelo() +
+                    ", ano=" + anoFormatado +
+                    ", tipoCombustivel=" + v.tipoCombustivel() + "]");
+        });
     }
 }

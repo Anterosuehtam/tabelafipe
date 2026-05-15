@@ -46,111 +46,119 @@ public class Principal {
             } else if (opcao.toLowerCase().contains("cam")) {
                 endereco = URL_BASE + "caminhoes/marcas";
             } else {
-                System.out.println("\n Opção inválida! Por favor, digite apenas Carro, Moto ou Caminhão.");
+                System.out.println("\nOpção inválida! Por favor, digite apenas Carro, Moto ou Caminhão.");
             }
         }
 
-        var json = consumo.obterDados(endereco);
-        var marcas = conversor.obterLista(json, Dados.class);
+        try {
+            var json = consumo.obterDados(endereco);
+            var marcas = conversor.obterLista(json, Dados.class);
 
-        System.out.println("\n===================================");
-        System.out.println("MARCAS DISPONÍVEIS");
-        System.out.println("===================================");
-        marcas.stream()
-                .sorted(Comparator.comparing(Dados::codigo))
-                .forEach(System.out::println);
+            System.out.println("\n===================================");
+            System.out.println("MARCAS DISPONÍVEIS");
+            System.out.println("===================================");
+            marcas.stream()
+                    .sorted(Comparator.comparing(Dados::codigo))
+                    .forEach(System.out::println);
 
-        String codigoMarca = "";
-        boolean marcaEncontrada = false;
+            String codigoMarca = "";
+            boolean marcaEncontrada = false;
 
-        while (!marcaEncontrada) {
-            System.out.println("\nInforme o código da marca para consulta: ");
-            codigoMarca = scanner.nextLine();
+            while (!marcaEncontrada) {
+                System.out.println("\nInforme o código da marca para consulta: ");
+                codigoMarca = scanner.nextLine();
 
-            String codigoDigitado = codigoMarca;
+                String codigoDigitado = codigoMarca;
 
-            marcaEncontrada = marcas.stream()
-                    .anyMatch(marca -> marca.codigo().equals(codigoDigitado));
+                marcaEncontrada = marcas.stream()
+                        .anyMatch(marca -> marca.codigo().equals(codigoDigitado));
 
-            if (!marcaEncontrada) {
-                System.out.println("Código inválido! Por favor, digite um código válido da lista acima.");
+                if (!marcaEncontrada) {
+                    System.out.println("Código inválido! Por favor, digite um código válido da lista acima.");
+                }
             }
-        }
 
-        endereco = endereco + "/" + codigoMarca + "/modelos";
-        json = consumo.obterDados(endereco);
-        var modeloLista = conversor.obterDados(json, Modelos.class);
+            endereco = endereco + "/" + codigoMarca + "/modelos";
+            json = consumo.obterDados(endereco);
+            var modeloLista = conversor.obterDados(json, Modelos.class);
 
-        System.out.println("\n===================================");
-        System.out.println("MODELOS DESSA MARCA");
-        System.out.println("===================================");
-        modeloLista.modelos().stream()
-                .sorted(Comparator.comparing(Dados::codigo))
-                .forEach(System.out::println);
+            System.out.println("\n===================================");
+            System.out.println("MODELOS DESSA MARCA");
+            System.out.println("===================================");
+            modeloLista.modelos().stream()
+                    .sorted(Comparator.comparing(Dados::codigo))
+                    .forEach(System.out::println);
 
-        List<Dados> modelosFiltrados = new ArrayList<>();
+            List<Dados> modelosFiltrados = new ArrayList<>();
 
-        while (modelosFiltrados.isEmpty()) {
-            System.out.print("\nDigite um trecho do nome do carro a ser buscado: ");
-            var nomeVeiculo = scanner.nextLine();
+            while (modelosFiltrados.isEmpty()) {
+                System.out.print("\nDigite um trecho do nome do carro a ser buscado: ");
+                var nomeVeiculo = scanner.nextLine();
 
-            modelosFiltrados = modeloLista.modelos().stream()
-                    .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
-                    .collect(Collectors.toList());
+                modelosFiltrados = modeloLista.modelos().stream()
+                        .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
+                        .collect(Collectors.toList());
 
-            if (modelosFiltrados.isEmpty()) {
-                System.out.println("Nenhum veículo encontrado com esse trecho! Tente digitar outra coisa.");
+                if (modelosFiltrados.isEmpty()) {
+                    System.out.println("Nenhum veículo encontrado com esse trecho! Tente digitar outra coisa.");
+                }
             }
-        }
 
-        System.out.println("\n===================================");
-        System.out.println("MODELOS FILTRADOS");
-        System.out.println("===================================");
-        modelosFiltrados.forEach(m -> System.out.printf("Cód: %-5s | Modelo: %s\n", m.codigo(), m.nome()));
+            System.out.println("\n===================================");
+            System.out.println("MODELOS FILTRADOS");
+            System.out.println("===================================");
+            modelosFiltrados.forEach(m -> System.out.printf("Cód: %-5s | Modelo: %s\n", m.codigo(), m.nome()));
 
-        String codigoModelo = "";
-        boolean modeloEncontrado = false;
+            String codigoModelo = "";
+            boolean modeloEncontrado = false;
 
-        while (!modeloEncontrado) {
-            System.out.print("\nDigite o código do modelo: ");
-            codigoModelo = scanner.nextLine();
+            while (!modeloEncontrado) {
+                System.out.print("\nDigite o código do modelo: ");
+                codigoModelo = scanner.nextLine();
 
-            String codigoDigitadoModelo = codigoModelo;
+                String codigoDigitadoModelo = codigoModelo;
 
-            modeloEncontrado = modeloLista.modelos().stream()
-                    .anyMatch(modelo -> modelo.codigo().equals(codigoDigitadoModelo));
+                modeloEncontrado = modeloLista.modelos().stream()
+                        .anyMatch(modelo -> modelo.codigo().equals(codigoDigitadoModelo));
 
-            if (!modeloEncontrado) {
-                System.out.println("Código de modelo inválido! Por favor, digite um código numérico válido da lista acima.");
+                if (!modeloEncontrado) {
+                    System.out.println("Código de modelo inválido! Por favor, digite um código numérico válido da lista acima.");
+                }
             }
+
+            endereco = endereco + "/" + codigoModelo + "/anos";
+            json = consumo.obterDados(endereco);
+
+            List<Dados> anos = conversor.obterLista(json, Dados.class);
+
+            List<Veiculo> veiculos = new ArrayList<>();
+
+            for (int i = 0; i < anos.size(); i++) {
+                var enderecoAnos = endereco + "/" + anos.get(i).codigo();
+                json = consumo.obterDados(enderecoAnos);
+                Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
+                veiculos.add(veiculo);
+            }
+
+            System.out.println("\n===================================");
+            System.out.println("HISTÓRICO DE MODELOS");
+            System.out.println("===================================");
+            veiculos.forEach(v -> {
+                String anoFormatado = v.ano() == 32000 ? "Zero KM" : String.valueOf(v.ano());
+
+                System.out.println("Veiculo[valor=" + v.valor() +
+                        ", marca=" + v.marca() +
+                        ", modelo=" + v.modelo() +
+                        ", ano=" + anoFormatado +
+                        ", tipoCombustivel=" + v.tipoCombustivel() + "]");
+            });
+        } catch (RuntimeException e) {
+            System.out.println("\n❌ Ops! Ocorreu um problema de comunicação com a Tabela Fipe.");
+            System.out.println("Isso pode ocorrer por falta de internet ou instabilidade no servidor da API.");
+            System.out.println("Por favor, tente novamente mais tarde.");
+        } catch (Exception e) {
+            System.out.println("\n❌ Ocorreu um erro inesperado no sistema: " + e.getMessage());
         }
-
-        endereco = endereco + "/" + codigoModelo + "/anos";
-        json = consumo.obterDados(endereco);
-
-        List<Dados> anos = conversor.obterLista(json, Dados.class);
-
-        List<Veiculo> veiculos = new ArrayList<>();
-
-        for (int i = 0; i < anos.size(); i++) {
-         var enderecoAnos = endereco + "/" + anos.get(i).codigo();
-         json = consumo.obterDados(enderecoAnos);
-         Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
-         veiculos.add(veiculo);
-        }
-
-        System.out.println("\n===================================");
-        System.out.println("HISTÓRICO DE MODELOS");
-        System.out.println("===================================");
-        veiculos.forEach(v -> {
-            String anoFormatado = v.ano() == 32000 ? "Zero KM" : String.valueOf(v.ano());
-
-            System.out.println("Veiculo[valor=" + v.valor() +
-                    ", marca=" + v.marca() +
-                    ", modelo=" + v.modelo() +
-                    ", ano=" + anoFormatado +
-                    ", tipoCombustivel=" + v.tipoCombustivel() + "]");
-        });
         System.out.println("\n===================================\n");
     }
 }

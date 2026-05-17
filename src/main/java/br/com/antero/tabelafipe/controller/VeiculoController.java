@@ -18,13 +18,8 @@ public class VeiculoController {
 
     @GetMapping("/{tipo}/marcas")
     public ResponseEntity<List<Dados>> listarMarcas(@PathVariable String tipo) {
-        try {
-            List<Dados> marcas = service.obterMarcas(tipo);
-            return ResponseEntity.ok(marcas);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        // O Controller agora só se preocupa com o caminho feliz!
+        List<Dados> marcas = service.obterMarcas(tipo);
+        return ResponseEntity.ok(marcas);
     }
 }

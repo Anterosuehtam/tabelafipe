@@ -1,5 +1,6 @@
 package br.com.antero.tabelafipe.controller;
 
+import br.com.antero.tabelafipe.dto.ModeloResponseDTO;
 import br.com.antero.tabelafipe.model.Dados;
 import br.com.antero.tabelafipe.service.VeiculoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,5 +22,14 @@ public class VeiculoController {
         // O Controller agora só se preocupa com o caminho feliz!
         List<Dados> marcas = service.obterMarcas(tipo);
         return ResponseEntity.ok(marcas);
+    }
+
+    @GetMapping("/{tipo}/{codigoMarca}/modelos")
+    public ResponseEntity<ModeloResponseDTO> listarModelos(
+            @PathVariable String tipo,
+            @PathVariable String codigoMarca) {
+
+        ModeloResponseDTO resposta = service.obterModelosPorMarca(tipo, codigoMarca);
+        return ResponseEntity.ok(resposta);
     }
 }

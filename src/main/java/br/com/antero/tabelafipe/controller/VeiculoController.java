@@ -1,5 +1,6 @@
 package br.com.antero.tabelafipe.controller;
 
+import br.com.antero.tabelafipe.dto.HistoricoResponseDTO;
 import br.com.antero.tabelafipe.dto.ModeloResponseDTO;
 import br.com.antero.tabelafipe.model.Dados;
 import br.com.antero.tabelafipe.service.VeiculoService;
@@ -19,7 +20,6 @@ public class VeiculoController {
 
     @GetMapping("/{tipo}/marcas")
     public ResponseEntity<List<Dados>> listarMarcas(@PathVariable String tipo) {
-        // O Controller agora só se preocupa com o caminho feliz!
         List<Dados> marcas = service.obterMarcas(tipo);
         return ResponseEntity.ok(marcas);
     }
@@ -30,6 +30,16 @@ public class VeiculoController {
             @PathVariable String codigoMarca) {
 
         ModeloResponseDTO resposta = service.obterModelosPorMarca(tipo, codigoMarca);
+        return ResponseEntity.ok(resposta);
+    }
+
+    @GetMapping("/{tipo}/{codigoMarca}/{codigoModelo}/historico")
+    public ResponseEntity<HistoricoResponseDTO> obterHistorico(
+            @PathVariable String tipo,
+            @PathVariable String codigoMarca,
+            @PathVariable String codigoModelo) {
+
+        HistoricoResponseDTO resposta = service.obterHistoricoCompleto(tipo, codigoMarca, codigoModelo);
         return ResponseEntity.ok(resposta);
     }
 }

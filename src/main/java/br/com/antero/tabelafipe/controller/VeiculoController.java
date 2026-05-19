@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -27,9 +28,10 @@ public class VeiculoController {
     @GetMapping("/{tipo}/{codigoMarca}/modelos")
     public ResponseEntity<ModeloResponseDTO> listarModelos(
             @PathVariable String tipo,
-            @PathVariable String codigoMarca) {
+            @PathVariable String codigoMarca,
+            @RequestParam(required = false) String nome){
 
-        ModeloResponseDTO resposta = service.obterModelosPorMarca(tipo, codigoMarca);
+        ModeloResponseDTO resposta = service.obterModelosPorMarca(tipo, codigoMarca, nome);
         return ResponseEntity.ok(resposta);
     }
 

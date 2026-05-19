@@ -37,7 +37,7 @@ public class VeiculoService {
         }
     }
 
-    public ModeloResponseDTO obterModelosPorMarca(String tipo, String codigoMarca) {
+    public ModeloResponseDTO obterModelosPorMarca(String tipo, String codigoMarca, String nomeVeiculo) {
         String categoria = validarEMapearCategoria(tipo);
         String endereco = URL_BASE + categoria + "/marcas/" + codigoMarca + "/modelos";
 
@@ -45,7 +45,15 @@ public class VeiculoService {
             var json = consumo.obterDados(endereco);
             var modelosApi = conversor.obterDados(json, Modelos.class);
 
-            return new ModeloResponseDTO(tipo, codigoMarca, modelosApi.modelos());
+            List<Dados> modelosFiltrados = modelosApi.modelos();
+
+            if (nomeVeiculo != null && !nomeVeiculo.trim().isEmpty()) {
+                modelosFiltrados = modelosApi.modelos().stream()
+                        .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
+                        .toList();
+            }
+
+            return new ModeloResponseDTO(tipo, codigoMarca, modelosFiltrados);
         } catch (RuntimeException e) {
             throw new RuntimeException("Falha ao comunicar com a API da Tabela Fipe ou marca não encontrada.");
         }

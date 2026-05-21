@@ -29,8 +29,7 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(UUID id, String nome, String email, String senha) {
-        this.id = id;
+    public Usuario(String nome, String email, String senha) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;

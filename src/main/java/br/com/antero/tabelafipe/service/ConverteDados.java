@@ -1,10 +1,12 @@
 package br.com.antero.tabelafipe.service;
 
+import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.type.CollectionType;
 
 import java.util.List;
 
+@Component
 public class ConverteDados implements IConverteDados{
     private ObjectMapper mapper = new ObjectMapper();
 

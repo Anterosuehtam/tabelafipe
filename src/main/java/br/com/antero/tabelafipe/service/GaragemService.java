@@ -10,6 +10,9 @@ import br.com.antero.tabelafipe.repository.VeiculoFavoritoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 public class GaragemService {
 
@@ -34,15 +37,26 @@ public class GaragemService {
         String urlFipe = URL_BASE + dados.tipoVeiculo() + "/marcas/" + dados.codigoMarca() +
                 "/modelos/" + dados.codigoModelo() + "/anos/" + dados.codigoAno();
 
-        Veiculo veiculoFipe;
-        try {
-            String json = consumo.obterDados(urlFipe);
-            veiculoFipe = conversor.obterDados(json, Veiculo.class);
-        } catch (RuntimeException e) {
-            throw new IllegalArgumentException("Veículo não encontrado na Tabela Fipe. Verifique os códigos enviados.");
+        String json = consumo.obterDados(urlFipe);
+        System.out.println("JSON RETORNADO PELA FIPE: " + json);
+
+        if (json.contains("error")) {
+            throw new IllegalArgumentException("Veículo não encontrado na Tabela Fipe. Verifique se os códigos de Marca, Modelo e Ano estão corretos.");
         }
 
-        String anoFormatado = veiculoFipe.ano() == 32000 ? "Zero KM" : String.valueOf(veiculoFipe.ano());
+        Veiculo veiculoFipe;
+        try {
+            veiculoFipe = conversor.obterDados(json, Veiculo.class);
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException("Erro ao interpretar os dados da Fipe.");
+        }
+
+        if (veiculoFipe.ano() == null) {
+            throw new IllegalArgumentException("A API da Fipe não retornou o ano do veículo.");
+        }
+
+        Integer anoVeiculo = veiculoFipe.ano();
+        String anoFormatado = anoVeiculo == 32000 ? "Zero KM" : String.valueOf(anoVeiculo);
 
         VeiculoFavorito favorito = new VeiculoFavorito(
                 usuario,
@@ -64,5 +78,23 @@ public class GaragemService {
                 salvo.getAno(),
                 salvo.getValorSalvo()
         );
+    }
+
+    public List<VeiculoFavoritoResponseDTO> listarGaragem(UUID usuarioId) {
+        if (!usuarioRepository.existsById(usuarioId)) {
+            throw new IllegalArgumentException("Usuário não encontrado.");
+        }
+
+        List<VeiculoFavorito> favoritos = garagemRepository.findAllByUsuarioId(usuarioId);
+
+        return favoritos.stream()
+                .map(veiculo -> new VeiculoFavoritoResponseDTO(
+                        veiculo.getId(),
+                        veiculo.getMarca(),
+                        veiculo.getModelo(),
+                        veiculo.getAno(),
+                        veiculo.getValorSalvo()
+                ))
+                .toList();
     }
 }

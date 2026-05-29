@@ -1,5 +1,6 @@
 package br.com.antero.tabelafipe.controller;
 
+import br.com.antero.tabelafipe.dto.AnaliseFinanceiraDTO;
 import br.com.antero.tabelafipe.dto.VeiculoFavoritoRequestDTO;
 import br.com.antero.tabelafipe.dto.VeiculoFavoritoResponseDTO;
 import br.com.antero.tabelafipe.service.GaragemService;
@@ -39,5 +40,13 @@ public class GaragemController {
         List<VeiculoFavoritoResponseDTO> garagem = service.listarGaragem(usuarioId);
 
         return ResponseEntity.ok(garagem);
+    }
+
+    @GetMapping("/{idFavorito}/analise")
+    public ResponseEntity<AnaliseFinanceiraDTO> analisarVeiculo(@PathVariable UUID idFavorito) {
+
+        AnaliseFinanceiraDTO analise = service.analisarVeiculo(idFavorito);
+
+        return ResponseEntity.ok(analise);
     }
 }

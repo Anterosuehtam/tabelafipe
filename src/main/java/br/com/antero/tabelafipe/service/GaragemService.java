@@ -1,5 +1,6 @@
 package br.com.antero.tabelafipe.service;
 
+import br.com.antero.tabelafipe.dto.AnaliseFinanceiraDTO;
 import br.com.antero.tabelafipe.dto.VeiculoFavoritoRequestDTO;
 import br.com.antero.tabelafipe.dto.VeiculoFavoritoResponseDTO;
 import br.com.antero.tabelafipe.model.Usuario;
@@ -10,6 +11,7 @@ import br.com.antero.tabelafipe.repository.VeiculoFavoritoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,6 +62,7 @@ public class GaragemService {
 
         VeiculoFavorito favorito = new VeiculoFavorito(
                 usuario,
+                dados.tipoVeiculo(),
                 dados.codigoMarca(),
                 dados.codigoModelo(),
                 dados.codigoAno(),
@@ -96,5 +99,51 @@ public class GaragemService {
                         veiculo.getValorSalvo()
                 ))
                 .toList();
+    }
+
+    public AnaliseFinanceiraDTO analisarVeiculo(UUID idFavorito) {
+
+        VeiculoFavorito favorito = garagemRepository.findById(idFavorito)
+                .orElseThrow(() -> new IllegalArgumentException("Veículo não encontrado na garagem."));
+
+        String urlFipe = URL_BASE + favorito.getTipoVeiculo() + "/marcas/" + favorito.getCodigoMarca() +
+                "/modelos/" + favorito.getCodigoModelo() + "/anos/" + favorito.getCodigoAno();
+
+        String json = consumo.obterDados(urlFipe);
+        if (json.contains("error")) {
+            throw new IllegalArgumentException("Não foi possível consultar o valor atualizado na Fipe.");
+        }
+
+        Veiculo veiculoAtualizado = conversor.obterDados(json, Veiculo.class);
+
+        BigDecimal valorSalvo = br.com.antero.tabelafipe.util.FormatadorMoeda.converterParaBigDecimal(favorito.getValorSalvo());
+        BigDecimal valorAtual = br.com.antero.tabelafipe.util.FormatadorMoeda.converterParaBigDecimal(veiculoAtualizado.valor());
+
+        BigDecimal diferenca = valorAtual.subtract(valorSalvo);
+
+        BigDecimal porcentagem = diferenca
+                .divide(valorSalvo, 4, java.math.RoundingMode.HALF_UP)
+                .multiply(new BigDecimal("100"));
+
+        String status;
+        int comparacao = diferenca.compareTo(BigDecimal.ZERO);
+        if (comparacao > 0) {
+            status = "VALORIZOU";
+        } else if (comparacao < 0) {
+            status = "DESVALORIZOU";
+        } else {
+            status = "ESTAVEL";
+        }
+
+        return new AnaliseFinanceiraDTO(
+                favorito.getMarca(),
+                favorito.getModelo(),
+                favorito.getAno(),
+                favorito.getValorSalvo(),
+                veiculoAtualizado.valor(),
+                String.format("R$ %.2f", diferenca),
+                String.format("%.2f%%", porcentagem),
+                status
+        );
     }
 }

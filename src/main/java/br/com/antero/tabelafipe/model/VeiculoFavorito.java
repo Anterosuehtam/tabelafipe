@@ -45,12 +45,16 @@ public class VeiculoFavorito {
     @Column(nullable = false)
     private String valorSalvo;
 
+    @Column(nullable = false)
+    private String tipoVeiculo;
+
     public VeiculoFavorito() {
     }
 
-    public VeiculoFavorito(Usuario usuario, String codigoMarca, String codigoModelo,
-                           String codigoAno, String marca, String modelo, String ano, String valorSalvo) {
+    public VeiculoFavorito(Usuario usuario, String tipoVeiculo, String codigoMarca, String codigoModelo, String codigoAno,
+                           String marca, String modelo, String ano, String valorSalvo) {
         this.usuario = usuario;
+        this.tipoVeiculo = tipoVeiculo;
         this.codigoMarca = codigoMarca;
         this.codigoModelo = codigoModelo;
         this.codigoAno = codigoAno;
@@ -64,6 +68,9 @@ public class VeiculoFavorito {
 
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public String getTipoVeiculo() { return tipoVeiculo; }
+    public void setTipoVeiculo(String tipoVeiculo) { this.tipoVeiculo = tipoVeiculo; }
 
     public String getCodigoMarca() { return codigoMarca; }
     public void setCodigoMarca(String codigoMarca) { this.codigoMarca = codigoMarca; }

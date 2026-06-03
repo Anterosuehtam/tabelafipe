@@ -32,9 +32,7 @@ public class GaragemService {
 
     private final String URL_BASE = "https://parallelum.com.br/fipe/api/v1/";
 
-    public VeiculoFavoritoResponseDTO salvarFavorito(VeiculoFavoritoRequestDTO dados) {
-        Usuario usuario = usuarioRepository.findById(dados.usuarioId())
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado no sistema."));
+    public VeiculoFavoritoResponseDTO salvarFavorito(VeiculoFavoritoRequestDTO dados, Usuario usuarioLogado) {
 
         String urlFipe = URL_BASE + dados.tipoVeiculo() + "/marcas/" + dados.codigoMarca() +
                 "/modelos/" + dados.codigoModelo() + "/anos/" + dados.codigoAno();
@@ -61,7 +59,7 @@ public class GaragemService {
         String anoFormatado = anoVeiculo == 32000 ? "Zero KM" : String.valueOf(anoVeiculo);
 
         VeiculoFavorito favorito = new VeiculoFavorito(
-                usuario,
+                usuarioLogado,
                 dados.tipoVeiculo(),
                 dados.codigoMarca(),
                 dados.codigoModelo(),
@@ -83,12 +81,9 @@ public class GaragemService {
         );
     }
 
-    public List<VeiculoFavoritoResponseDTO> listarGaragem(UUID usuarioId) {
-        if (!usuarioRepository.existsById(usuarioId)) {
-            throw new IllegalArgumentException("Usuário não encontrado.");
-        }
+    public List<VeiculoFavoritoResponseDTO> listarGaragem(Usuario usuarioLogado) {
 
-        List<VeiculoFavorito> favoritos = garagemRepository.findAllByUsuarioId(usuarioId);
+        List<VeiculoFavorito> favoritos = garagemRepository.findAllByUsuarioId(usuarioLogado.getId());
 
         return favoritos.stream()
                 .map(veiculo -> new VeiculoFavoritoResponseDTO(

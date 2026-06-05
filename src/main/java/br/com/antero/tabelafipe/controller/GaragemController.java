@@ -5,6 +5,7 @@ import br.com.antero.tabelafipe.dto.VeiculoFavoritoRequestDTO;
 import br.com.antero.tabelafipe.dto.VeiculoFavoritoResponseDTO;
 import br.com.antero.tabelafipe.model.Usuario;
 import br.com.antero.tabelafipe.service.GaragemService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +29,7 @@ public class GaragemController {
 
     @PostMapping
     public ResponseEntity<VeiculoFavoritoResponseDTO> adicionarFavorito(
-            @RequestBody VeiculoFavoritoRequestDTO dados,
+            @Valid @RequestBody VeiculoFavoritoRequestDTO dados,
             @AuthenticationPrincipal Usuario usuarioLogado,
             UriComponentsBuilder uriBuilder) {
 

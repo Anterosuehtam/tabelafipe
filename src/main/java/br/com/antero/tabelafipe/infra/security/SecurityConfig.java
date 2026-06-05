@@ -34,6 +34,9 @@ public class SecurityConfig {
                     req.requestMatchers(org.springframework.http.HttpMethod.POST, "/api/auth/login").permitAll();
                     //O Cadastro de Usuários tem que ser público
                     req.requestMatchers(org.springframework.http.HttpMethod.POST, "/api/usuarios").permitAll();
+
+                    req.requestMatchers("/error").permitAll();
+
                     //QUALQUER outra rota (incluindo todas as da Garagem) precisa de autenticação
                     req.anyRequest().authenticated();
                 })

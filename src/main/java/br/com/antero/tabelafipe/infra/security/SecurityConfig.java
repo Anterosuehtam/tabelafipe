@@ -37,6 +37,8 @@ public class SecurityConfig {
 
                     req.requestMatchers("/error").permitAll();
 
+                    req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll();
+
                     //QUALQUER outra rota (incluindo todas as da Garagem) precisa de autenticação
                     req.anyRequest().authenticated();
                 })

@@ -1,6 +1,7 @@
 package br.com.antero.tabelafipe.service;
 
 import br.com.antero.tabelafipe.dto.AnaliseFinanceiraDTO;
+import br.com.antero.tabelafipe.dto.VeiculoFavoritoRequestDTO;
 import br.com.antero.tabelafipe.dto.VeiculoFavoritoResponseDTO;
 import br.com.antero.tabelafipe.model.Usuario;
 import br.com.antero.tabelafipe.model.Veiculo;
@@ -125,5 +126,48 @@ class GaragemServiceTest {
 
         // Verificamos se a mensagem do erro é exatamente a que você programou
         org.junit.jupiter.api.Assertions.assertEquals("Veículo não encontrado na garagem.", excecaoCapturada.getMessage());
+    }
+
+    @Test
+    @DisplayName("Deve consultar a Fipe e salvar um novo veículo na garagem com sucesso")
+    void deveSalvarVeiculoComSucesso() {
+        // --- 1. ARRANGE (Preparar o cenário) ---
+        Usuario usuarioLogado = new Usuario();
+        usuarioLogado.setId(UUID.randomUUID());
+
+        // A) Simulamos o DTO chegando do Controller (A requisição do usuário)
+        VeiculoFavoritoRequestDTO requestDTO = new VeiculoFavoritoRequestDTO("carros", "6", "8560", "2019-1");
+
+        // B) Simulamos a internet devolvendo o JSON daquele carro
+        String jsonFalso = "{\"Valor\":\"R$ 100.000,00\", \"Marca\":\"Audi\", \"Modelo\":\"A3 Sedan\"}";
+        when(consumoAPI.obterDados(org.mockito.ArgumentMatchers.anyString())).thenReturn(jsonFalso);
+
+        // C) Simulamos o conversor transformando o JSON em objeto
+        Veiculo veiculoFipe = new Veiculo("R$ 100.000,00", "Audi", "A3 Sedan", 2019, "Gasolina");
+        when(conversor.obterDados(jsonFalso, Veiculo.class)).thenReturn(veiculoFipe);
+
+        // D) Simulamos o banco de dados salvando e devolvendo o carro com um ID gerado
+        VeiculoFavorito carroSalvo = new VeiculoFavorito();
+        carroSalvo.setId(UUID.randomUUID());
+        carroSalvo.setMarca("Audi");
+        carroSalvo.setModelo("A3 Sedan");
+        carroSalvo.setValorSalvo("R$ 100.000,00");
+
+        // Ensinamos o dublê: "Qualquer carro que mandarem você salvar, devolva este carroSalvo"
+        when(garagemRepository.save(org.mockito.ArgumentMatchers.any(VeiculoFavorito.class))).thenReturn(carroSalvo);
+
+
+        // --- 2. ACT (Agir) ---
+        VeiculoFavoritoResponseDTO resultado = garagemService.salvarFavorito(requestDTO, usuarioLogado);
+
+
+        // --- 3. ASSERT (Verificar) ---
+        assertNotNull(resultado);
+        assertEquals("Audi", resultado.marca());
+        assertEquals("R$ 100.000,00", resultado.valorSalvo());
+
+        // A MÁGICA: O JUnit garante que o metodo .save() do banco foi acionado EXATAMENTE 1 VEZ
+        org.mockito.Mockito.verify(garagemRepository, org.mockito.Mockito.times(1))
+                .save(org.mockito.ArgumentMatchers.any(VeiculoFavorito.class));
     }
 }

@@ -66,6 +66,10 @@ public class VeiculoFavorito {
 
     public UUID getId() { return id; }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 

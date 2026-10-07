@@ -6,14 +6,16 @@ import br.com.antero.tabelafipe.dto.ModeloResponseDTO;
 import br.com.antero.tabelafipe.model.Dados;
 import br.com.antero.tabelafipe.model.Modelos;
 import br.com.antero.tabelafipe.model.Veiculo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class VeiculoService {
 
-    private final ConsumoAPI consumo = new ConsumoAPI();
-    private final ConverteDados conversor = new ConverteDados();
+    private final ConsumoAPI consumo;
+    private final IConverteDados conversor;
     private final String URL_BASE = "https://parallelum.com.br/fipe/api/v1/";
 
     private String validarEMapearCategoria(String tipo) {

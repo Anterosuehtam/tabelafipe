@@ -47,10 +47,9 @@ public class GaragemController {
     }
 
     @GetMapping("/{idFavorito}/analise")
-    public ResponseEntity<AnaliseFinanceiraDTO> analisarVeiculo(@PathVariable UUID idFavorito) {
-
-        AnaliseFinanceiraDTO analise = service.analisarVeiculo(idFavorito);
-
-        return ResponseEntity.ok(analise);
+    public ResponseEntity<AnaliseFinanceiraDTO> analisarVeiculo(
+            @PathVariable UUID idFavorito,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+        return ResponseEntity.ok(service.analisarVeiculo(idFavorito, usuarioLogado));
     }
 }

@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -69,8 +70,10 @@ class GaragemServiceTest {
     @Test
     @DisplayName("Deve calcular a depreciação corretamente quando o valor atual da Fipe for menor")
     void deveCalcularDepreciacao() {
-        // --- 1. ARRANGE (Preparar o cenário) ---
         UUID idCarro = UUID.randomUUID();
+
+        Usuario usuarioLogado = new Usuario();
+        usuarioLogado.setId(UUID.randomUUID());
 
         // A) Criamos o carro que fingiremos estar salvo no banco de dados (Valor antigo: 100 mil)
         VeiculoFavorito carroSalvo = new VeiculoFavorito();
@@ -81,7 +84,8 @@ class GaragemServiceTest {
         carroSalvo.setValorSalvo("R$ 100.000,00");
 
         // Ensinamos o banco de dados falso a retornar este carro
-        when(garagemRepository.findById(idCarro)).thenReturn(java.util.Optional.of(carroSalvo));
+        when(garagemRepository.findByIdAndUsuarioId(idCarro, usuarioLogado.getId()))
+                .thenReturn(java.util.Optional.of(carroSalvo));
 
         // B) Simulamos a resposta da internet (API da Fipe)
         String jsonFalso = "{\"Valor\":\"R$ 90.000,00\"}";
@@ -94,7 +98,7 @@ class GaragemServiceTest {
 
 
         // --- 2. ACT (Executar a nossa matemática) ---
-        AnaliseFinanceiraDTO resultado = garagemService.analisarVeiculo(idCarro);
+        AnaliseFinanceiraDTO resultado = garagemService.analisarVeiculo(idCarro, usuarioLogado);
 
 
         // --- 3. ASSERT (Verificar se os cálculos ficaram perfeitos) ---
@@ -111,17 +115,20 @@ class GaragemServiceTest {
     @Test
     @DisplayName("Deve lançar exceção ao tentar analisar um veículo que não existe na garagem")
     void deveLancarExcecaoQuandoVeiculoNaoExistir() {
-        // --- 1. ARRANGE (Preparar o cenário) ---
         UUID idInvalido = UUID.randomUUID();
 
+        Usuario usuarioLogado = new Usuario();
+        usuarioLogado.setId(UUID.randomUUID());
+
         // Ensinamos o banco falso a dizer: "Não encontrei nenhum carro com esse ID"
-        when(garagemRepository.findById(idInvalido)).thenReturn(java.util.Optional.empty());
+        when(garagemRepository.findByIdAndUsuarioId(idInvalido, usuarioLogado.getId()))
+                .thenReturn(java.util.Optional.empty());
 
         // --- 2 & 3. ACT & ASSERT (Agir e Verificar juntos) ---
         // O JUnit 'segura' a exceção esperada para o teste não quebrar a suíte
         IllegalArgumentException excecaoCapturada = org.junit.jupiter.api.Assertions.assertThrows(
                 IllegalArgumentException.class,
-                () -> garagemService.analisarVeiculo(idInvalido)
+                () -> garagemService.analisarVeiculo(idInvalido, usuarioLogado)
         );
 
         // Verificamos se a mensagem do erro é exatamente a que você programou

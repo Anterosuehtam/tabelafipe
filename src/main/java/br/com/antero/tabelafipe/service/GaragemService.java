@@ -38,7 +38,6 @@ public class GaragemService {
                 "/modelos/" + dados.codigoModelo() + "/anos/" + dados.codigoAno();
 
         String json = consumo.obterDados(urlFipe);
-        System.out.println("JSON RETORNADO PELA FIPE: " + json);
 
         if (json.contains("error")) {
             throw new IllegalArgumentException("Veículo não encontrado na Tabela Fipe. Verifique se os códigos de Marca, Modelo e Ano estão corretos.");
@@ -79,7 +78,7 @@ public class GaragemService {
                 salvo.getAno(),
                 salvo.getValorSalvo()
         );
-    }
+    } //monta a URL da FIPE, busca o veículo, converte e grava no banco com o valor daquele dia (valorSalvo).
 
     public List<VeiculoFavoritoResponseDTO> listarGaragem(Usuario usuarioLogado) {
 
@@ -94,11 +93,12 @@ public class GaragemService {
                         veiculo.getValorSalvo()
                 ))
                 .toList();
-    }
+    } // busca os favoritos do usuário logado (findAllByUsuarioId).
 
-    public AnaliseFinanceiraDTO analisarVeiculo(UUID idFavorito) {
+    public AnaliseFinanceiraDTO analisarVeiculo(UUID idFavorito, Usuario usuarioLogado) {
 
-        VeiculoFavorito favorito = garagemRepository.findById(idFavorito)
+        VeiculoFavorito favorito = garagemRepository
+                .findByIdAndUsuarioId(idFavorito, usuarioLogado.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Veículo não encontrado na garagem."));
 
         String urlFipe = URL_BASE + favorito.getTipoVeiculo() + "/marcas/" + favorito.getCodigoMarca() +
@@ -118,7 +118,7 @@ public class GaragemService {
 
         BigDecimal porcentagem = diferenca
                 .divide(valorSalvo, 4, java.math.RoundingMode.HALF_UP)
-                .multiply(new BigDecimal("100"));
+                .multiply(new BigDecimal("100")); // "divide" em BigDecimal exige escala e modo de arredondamento (4 casas, HALF_UP). Sem isso, uma divisão como 1/3 lança ArithmeticException, porque o resultado é infinito.
 
         String status;
         int comparacao = diferenca.compareTo(BigDecimal.ZERO);
@@ -140,5 +140,5 @@ public class GaragemService {
                 String.format("%.2f%%", porcentagem),
                 status
         );
-    }
+    } // busca o favorito no banco, consulta o valor de hoje na FIPE, compara com o valor salvo e calcula diferença e porcentagem.
 }

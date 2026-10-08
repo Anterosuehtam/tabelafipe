@@ -18,7 +18,7 @@ public class VeiculoFavorito {
 
     @Id
     @GeneratedValue (strategy = GenerationType.UUID)
-    private UUID id;
+    private UUID id; // a chave é um UUID aleatório, não um número sequencial. Isso dificulta alguém adivinhar os ids.
 
     @ManyToOne(fetch = FetchType.LAZY) // é uma excelente prática de performance; ele diz ao banco de dados: "Quando você buscar o carro favorito, não carregue todos os dados pesados do usuário de forma automática, a menos que eu peça expressamente".
     @JoinColumn(name = "usuario_id", nullable = false)

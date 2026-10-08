@@ -35,7 +35,7 @@ public class VeiculoService {
             var json = consumo.obterDados(endereco);
             return conversor.obterLista(json, Dados.class);
         } catch (RuntimeException e) {
-            throw new RuntimeException("Falha ao comunicar com a API da Tabela Fipe.");
+            throw new RuntimeException("Falha ao comunicar com a API da Tabela Fipe.", e);
         }
     }
 
@@ -52,15 +52,17 @@ public class VeiculoService {
             if (nomeVeiculo != null && !nomeVeiculo.trim().isEmpty()) {
                 modelosFiltrados = modelosApi.modelos().stream()
                         .filter(m -> m.nome().toLowerCase().contains(nomeVeiculo.toLowerCase()))
-                        .toList();
+                        .toList(); // aplica o filtro por nome ignorando maiúsculas e minúsculas.
             }
 
             return new ModeloResponseDTO(tipo, codigoMarca, modelosFiltrados);
         } catch (RuntimeException e) {
-            throw new RuntimeException("Falha ao comunicar com a API da Tabela Fipe ou marca não encontrada.");
+            throw new RuntimeException("Falha ao comunicar com a API da Tabela Fipe ou marca não encontrada.", e);
         }
     }
 
+    /*Faz 1 chamada para a lista de anos e depois 1 chamada para cada ano. Um modelo com 20 anos gera 21 requisições HTTP. Esse é o N+1.
+    A classe atua como Facade: o controller faz uma chamada só e a complexidade fica escondida aqui.*/
     public HistoricoResponseDTO obterHistoricoCompleto(String tipo, String codigoMarca, String codigoModelo) {
         String categoria = validarEMapearCategoria(tipo);
         String enderecoBase = URL_BASE + categoria + "/marcas/" + codigoMarca + "/modelos/" + codigoModelo;
@@ -82,7 +84,7 @@ public class VeiculoService {
                     nomeModelo = veiculoApi.modelo();
                 }
 
-                String anoFormatado = veiculoApi.ano() == 32000 ? "Zero KM" : String.valueOf(veiculoApi.ano());
+                String anoFormatado = veiculoApi.ano() == 32000 ? "Zero KM" : String.valueOf(veiculoApi.ano()); // número mágico. A FIPE usa 32000 para "Zero KM".
 
                 avaliacoes.add(new AvaliacaoDTO(anoFormatado, veiculoApi.valor(), veiculoApi.tipoCombustivel()));
             }
@@ -90,7 +92,7 @@ public class VeiculoService {
             return new HistoricoResponseDTO(nomeMarca, nomeModelo, avaliacoes);
 
         } catch (RuntimeException e) {
-            throw new RuntimeException("Falha ao buscar o histórico de avaliações do veículo.");
+            throw new RuntimeException("Falha ao buscar o histórico de avaliações do veículo.", e);
         }
     }
 }
